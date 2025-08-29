@@ -1,0 +1,150 @@
+ @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;1,500&family=Sacramento&display=swap');
+
+:root {
+    --primary-color: #a8d3da; 
+    --secondary-color: #FFFFFF;
+    --accent-color: #28A745; 
+    --background-color: #E6F7FF;
+    --text-color: #333333; 
+
+    --font-small: 0.8rem;
+    --font-medium: 1rem;
+    --font-large: 1.5rem;
+    --font-xlarge: 3rem;
+}
+html{
+    font-size: 62.5%;
+    overflow-x: hidden;
+
+}
+body{
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background-color: var(--background-color);
+}
+
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 20%;
+    background-color: var(--accent-color);
+    color: white;
+    height: 105vh;
+    padding: 20px;
+    box-sizing: border-box;
+    font-size: var(--font-xlarge);
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar li {
+    margin-bottom: 10px;
+}
+
+.sidebar button {
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    padding: 10px;
+    width: 100%;
+    display: block;
+    border-radius: 5px;
+    background: var(--text-color);
+    cursor: pointer;
+}
+
+.sidebar button:hover {
+    background-color: var(--text-color);
+}
+
+
+.content {
+    width: 80%;
+    padding: 20px;
+    box-sizing: border-box;
+    font-size: var(--font-large);
+}
+
+.tab-content {
+    display: block;
+}
+
+.hidden {
+    display: none;
+}
+
+
+table{
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 10px; 
+    text-align: left; 
+    border: 1px solid #ddd; 
+}
+th { 
+    background-color: #007BFF; 
+    color: white; 
+}
+tr:nth-child(even) { 
+    background-color: #f9f9f9; 
+}
+form { 
+    display: inline-block; 
+}
+select { 
+    padding: 5px; 
+}
+table button { 
+    padding: 5px 10px; 
+    background: #007BFF; 
+    color: white; 
+    border: none; 
+    border-radius: 4px; 
+    cursor: pointer; 
+}
+button:hover { 
+    background: #0056b3; 
+}
+
+.select-btn{
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    padding: 10px;
+    width: 50%;
+    display: block;
+    border-radius: 5px;
+    background: var(--text-color);
+    cursor: pointer;
+}
+
+#logoutbtn{
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    padding: 10px;
+    width: 100%;
+    display: block;
+    border-radius: 5px;
+    background: var(--text-color);
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+#s-form{
+    display: none;
+}
+.signup-form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}

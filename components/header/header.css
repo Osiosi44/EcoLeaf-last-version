@@ -1,0 +1,115 @@
+.header{
+  position: sticky;
+  top:0;
+  left:0;
+  right:0;
+  z-index: 1000;
+  font-size: var(--font-large);
+  background-color: var(--secondary-color);
+  display: flex;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  box-shadow: var(--border-shadow);
+  align-items: center;
+  justify-content: space-between;
+}
+.header .logo{
+  font-size: var(--font-xlarge);
+  margin-left: 2rem;
+  color: black;
+}
+.leaf{
+  Color:#378311;
+  font-weight: bold;
+}
+.header .logo:hover{
+  text-decoration: none;
+  color: #378311;
+  font-weight: bold;
+}
+.header .leaf:hover{
+  color: black;
+  font-weight: bold;
+}
+.header .navbar a{
+  text-decoration: none;
+  font-size: var(--font-large);
+  margin-left: 2rem;
+  color:var(--text-color)
+}
+
+.header a:hover{
+  color: #378311;
+}
+#menu-btn{
+  font-size: var(--font-xlarge);
+  cursor: pointer;
+  color:var(--primary-color);
+  display: none;
+}
+#login-signup{
+  cursor: pointer;
+  background: #91d9e7;
+  border: 1px solid #ffffff;
+  border-radius: 20px;
+  padding: 5px 10px 5px 10px;
+}
+#login-signup:hover{
+  color: white;
+  background-color: #39a23e;
+}
+.profile-icon{
+  font-size: large;
+  font-weight: bolder;
+  border:  none;
+  margin-left: 2rem;
+  cursor: pointer;
+  padding: 2px;
+  border-left: 1px gray solid;
+  border-right: 1px gray solid;
+  border-radius: 4px;
+  background-color: transparent;
+}
+.profile-icon:hover{
+  color: #378311;
+  border: 1px gray solid;
+}
+
+@media (max-width:768px){
+  #menu-btn{
+    display: inline-block;
+    transition: .2s linear;
+  }
+  #menu-btn.fa-times{
+    transform:rotate(180deg);
+  }
+  .header .navbar{
+    position: absolute;
+    top:99%;
+    left:0;
+    right:0;
+    background-color: var(--background-color);
+    border-top: var(--border);
+    padding: 2rem;
+    transition: .2s linear;
+    clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+  }
+  .header .navbar.active{
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+  .header .navbar a{
+    display: block;
+    margin: 2rem;
+    text-align: center;
+  }
+  #login-signup{
+    display: flex;
+    margin: 2rem;
+    justify-self: center;
+  }
+  .profile-icon{
+    display: flex;
+    margin: 2rem;
+    justify-self: center;
+  }
+}
