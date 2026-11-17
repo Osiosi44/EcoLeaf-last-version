@@ -2,6 +2,10 @@
 require 'db/db_con.php';
 require_once "db/config_session.php";
 
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
 $user_id = $_SESSION['user_id'];
 
 // Fetch orders and their associated items in one query

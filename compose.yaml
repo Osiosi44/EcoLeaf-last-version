@@ -1,0 +1,32 @@
+services:
+  web:
+    build: .
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      DB_HOST: database
+      DB_NAME: ecoleaf
+      DB_USER: ecoleaf
+      DB_PASSWORD: local-demo-password
+    depends_on:
+      database:
+        condition: service_healthy
+  database:
+    image: mariadb:11.4
+    environment:
+      MARIADB_DATABASE: ecoleaf
+      MARIADB_USER: ecoleaf
+      MARIADB_PASSWORD: local-demo-password
+      MARIADB_ROOT_PASSWORD: local-root-password
+    volumes:
+      - database:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+volumes:
+  database:

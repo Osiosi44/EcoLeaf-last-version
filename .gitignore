@@ -1,0 +1,4 @@
+db/config.local.php
+.env
+artifacts/
+*.log

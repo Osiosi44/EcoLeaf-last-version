@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/config_session.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login.php");
@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         require_once "db_con.php";
-        $username = $_POST['username'];
+        $username = $_SESSION['user_username'];
 
         $con->query("SET SQL_SAFE_UPDATES = 0");
 

@@ -1,6 +1,6 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/config_session.php';
 session_unset();
 session_destroy();
 

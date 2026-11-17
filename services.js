@@ -40,7 +40,7 @@ function toggleServiceList(listId, className) {
 function addSelectedItemsToList(listId) {
     const checkboxes = document.querySelectorAll(`#${listId} input[type='checkbox']`);
     checkboxes.forEach(checkbox => {
-        const label = checkbox.parentElement; 
+        const label = checkbox.parentElement;
         const priceText = label.textContent.match(/\$(\d+(\.\d{1,2})?)/); // Extract price from text
         const price = parseFloat(priceText ? priceText[1] : 0); // Parse price as a float
         const quantityInput = label.querySelector('input[type="number"]'); // Get the associated number input
@@ -60,13 +60,15 @@ function addSelectedItemsToList(listId) {
                     const newItem = document.createElement('li');
                     newItem.textContent = `${checkbox.value} - $${subTotal.toFixed(2)}`;
                     newItem.setAttribute('data-value', checkbox.value);
+                    newItem.setAttribute('data-quantity', quantity);
                     newItem.setAttribute('data-subtotal', subTotal.toFixed(2)); // Store sub-total as an attribute
                     selectedItemsList.appendChild(newItem);
 
                     document.querySelector('.nextBtn').classList.remove('hidden');
                 } else {
                     listItem.textContent = `${checkbox.value} - $${subTotal.toFixed(2)}`;
-                    listItem.setAttribute('data-subtotal', subTotal.toFixed(2)); // Update sub-total attribute
+                    listItem.setAttribute('data-subtotal', subTotal.toFixed(2));
+                    listItem.setAttribute('data-quantity', quantity); // Update sub-total attribute
                 }
             } else {
                 if (listItem) {
@@ -105,19 +107,19 @@ function updateTotalPrice() {
 
 // update checkbox state, label style
 document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-    const label = checkbox.parentElement; 
-    const quantityInput = label ? label.querySelector('input[type="number"]') : null; 
+    const label = checkbox.parentElement;
+    const quantityInput = label ? label.querySelector('input[type="number"]') : null;
 
     function updateCheckboxState() {
-        if (!quantityInput) return; 
+        if (!quantityInput) return;
 
-        const quantity = parseInt(quantityInput.value, 10); 
+        const quantity = parseInt(quantityInput.value, 10);
 
         if (quantity > 0) {
-            checkbox.checked = true; 
-            label.classList.add('checked'); 
+            checkbox.checked = true;
+            label.classList.add('checked');
         } else {
-            checkbox.checked = false; 
+            checkbox.checked = false;
             label.classList.remove('checked');
         }
     }
@@ -146,20 +148,20 @@ document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
 
 // next button click
 document.querySelector('.nextBtn').addEventListener('click', () => {
-    
+
     const selectedItemsList = document.getElementById('selectedItems');
     if (selectedItemsList.children.length === 0) {
         alert("Please select at least one item.");
         return;
     }
-    
+
     document.querySelector('.services_s').style.display = 'none';
     document.querySelector('.finish_booking').style.display = 'block';
 });
 
 // Form submission handler
 document.getElementById('bookingForm').addEventListener('submit', function (e) {
-    e.preventDefault(); 
+    e.preventDefault();
 
     const address = document.getElementById('address').value;
     const pickupDate = document.getElementById('pickup_date').value;
@@ -182,6 +184,7 @@ document.getElementById('bookingForm').addEventListener('submit', function (e) {
             option_id: optionId,
             name: itemName.trim(),
             subtotal: subTotal,
+            quantity: Number(li.getAttribute('data-quantity')),
         });
     });
 
@@ -197,7 +200,7 @@ document.getElementById('bookingForm').addEventListener('submit', function (e) {
 
     selectedItems.forEach((item, index) => {
         formData.append(`option_name_${index}`, item.option_id);
-        formData.append(`quantity_${index}`, 1); 
+        formData.append(`quantity_${index}`, item.quantity);
         formData.append(`price_${index}`, item.subtotal);
     });
 

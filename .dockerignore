@@ -1,0 +1,4 @@
+.git
+artifacts
+db/config.local.php
+.env

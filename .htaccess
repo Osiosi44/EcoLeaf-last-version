@@ -1,0 +1,11 @@
+DirectoryIndex index.php home.php
+Options -Indexes
+RedirectMatch 403 (^|/)(\.git|docker|database|scripts|artifacts)(/|$)
+<FilesMatch "^(config\.(local|example)\.php|compose\.yaml|Dockerfile|tables\.txt|README\.md|\.env.*)$">
+    Require all denied
+</FilesMatch>
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(?:\.git|docker|database|scripts|artifacts)(?:/|$) - [F,L]
+    RewriteRule ^\.env(?:\.|$) - [F,L]
+</IfModule>
