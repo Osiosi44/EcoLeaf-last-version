@@ -1,7 +1,9 @@
 DirectoryIndex index.php home.php
+ErrorDocument 404 /404.php
 Options -Indexes
-RedirectMatch 403 (^|/)(\.git|docker|database|scripts|artifacts)(/|$)
-<FilesMatch "^(config\.(local|example)\.php|compose\.yaml|Dockerfile|tables\.txt|README\.md|\.env.*)$">
+RedirectMatch 403 (^|/)(\.git|\.impeccable|node_modules|docker|database|scripts|artifacts|tests|docs|components)(/|$)
+RedirectMatch 403 (^|/)db/(login_MVC|signup_MVC|services)(/|$)
+<FilesMatch "^(config\.(local|example)\.php|app\.php|db_con\.php|config_session\.php|layout\.php|compose\.yaml|Dockerfile|tables\.txt|.*\.md|\.env.*)$">
     Require all denied
 </FilesMatch>
 <IfModule mod_rewrite.c>

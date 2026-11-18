@@ -1,126 +1,19 @@
 <?php
-    require_once "db/config_session.php";
+require_once __DIR__.'/components/layout.php';
+$services=service_catalog();
+$reviews=db()->query('SELECT r.rating,r.comment,u.username FROM reviews r JOIN users u ON u.id=r.user_id ORDER BY r.review_id DESC LIMIT 3')->fetch_all(MYSQLI_ASSOC);
+page_start('Laundry off your list','home');
 ?>
-<!DOCTYPE html>
-<html lang="en"> 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="styles.css"> 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
-</head>
-<body>
-    <?php
-    require_once 'components/header/header.php';
-    ?>
-
-    <section class="home">
-        <div class="swiper home-slider">
-            <div class="swiper-wrapper">
-            <div class="swiper-slide slide" style="background: url(images/male.png) no-repeat ">
-                    <div class="content">
-                       
-                        <h3>The laundry of your choice!</h3>
-                        <?php if(isset($_SESSION["user_id"])){?>
-                        <a href="package.php" class="btn">Start Booking Now</a><?php }else{?>
-                        <a href="login.php" class="btn">Get Started</a>
-                        <?php } ?>
-                    </div>
-            </div>
-                <div class="swiper-slide slide" style="background-image: linear-gradient(rgba(0, 0, 0, 0.889), rgba(0, 0, 0,0.889)), url('images/machine_bg.png'); no-repeat;background-position:center">
-                    <div class="content-2">; 
-                        <span>wash fold dry and get it delivered</span>
-                        <h3>The laundry of your choice!</h3>
-                        <?php if(isset($_SESSION["user_id"])){?>
-                        <a href="package.php" class="btn">Start Booking Now</a><?php }else{?>
-                        <a href="login.php" class="btn">Get Started</a>
-                        <?php } ?>
-                    </div>
-                </div>
-                <div class="swiper-slide slide" style="background: url(images/hanged_clothes.png) no-repeat ">
-                    <div class="content">
-                       
-                        <h3>The laundry of your choice!</h3>
-                        <?php if(isset($_SESSION["user_id"])){?>
-                        <a href="package.php" class="btn">Start Booking Now</a><?php }else{?>
-                        <a href="login.php" class="btn">Get Started</a>
-                        <?php } ?>
-                    </div>
-            </div>
-            </div>
-            <div class="swiper-button-next"></div>
-            <div class="swiper-button-prev"></div>
-        </div>
-    </section>
-
-
-
-    <section class="services">
-        <h1 class="heading-title">
-            Our Services
-        </h1>
-        <div class="box-container">
-<?php
-require_once 'db/services/home_services.php';
-?>
-        </div>
-    </section>
-
-    <section class="home-about">
-        <div class="image">
-            <img src="images/laundry-guy.png" alt="">
-        </div>
-        <div class="content">
-            <h3>about us</h3>
-            <p>We are here to make laundry day a breeze, because you deserve a little more time for yourself.Let us handle the mess while you enjoy the freshness!</p>
-            <a href="about.php" class="btn">Read More</a>
-        </div>
-    </section>
-
-
-    <section class="home-packages">
-    
-        <div class="content">
-            <h3>Packages</h3>
-            <p>At EcoLeaf, we offer a wide range of laundry solutions designed to make your life easier. Whether you need everyday laundry care or specialized treatments, we have got you covered. </p>
-            <a href="package.php" class="btn">See More</a>
-        </div>
-        <div class="image">
-            <img src="images/packages-img.png" alt="">
-        </div>
-    </section>
-
-    <section class="packages">
-        <h1 class="heading-title">
-            Packages
-        </h1>
-        <div class="box-container">
-            
-<?php
-require_once 'db/services/home2_services.php';
-?>
-
-        </div>
-    </section>
-    <section class="reviews">
-        <h2>REVIEWS</h2>
-    <div class="swiper reviews-slider">
-        <div class="swiper-wrapper">
-            <?php
-            require_once 'db/fetch_reviews.php';
-            ?>
-        </div>
-    </div>
+<main id="main">
+<section class="hero container">
+    <div class="hero-copy"><h1>Laundry off<br>your list.</h1><p>From your everyday favourites to the pieces that need a little extra care. Choose your services, book a pickup, and make room for the rest of your day.</p><div class="button-row"><a class="button" href="<?= h(url('booking.php')) ?>">Book a pickup <?= icon('arrow') ?></a><a class="button button-outline" href="<?= h(url('package.php')) ?>">Explore services</a></div><div class="hero-details"><span><?= icon('check',17) ?>Pick your services</span><span><?= icon('check',17) ?>Track your order</span></div></div>
+    <div class="hero-visual"><div class="washer-stage" data-washer><img class="washer-fallback" src="<?= h(asset('assets/photos/washer-poster.jpg')) ?>" width="561" height="510" alt="Illustration of an EcoLeaf washing machine with folded towels"><canvas id="washer-canvas" aria-label="Three-dimensional illustration of a washing machine"></canvas><div class="washer-controls" hidden><button class="icon-button" type="button" data-rotate aria-label="Rotate washing machine"><?= icon('rotate') ?></button><button class="icon-button" type="button" data-motion aria-label="Pause illustration animation" aria-pressed="false"><?= icon('pause') ?></button></div></div></div>
 </section>
-
-<?php
-require_once 'components/footer/footer.php';
-?>
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script src="script.js"></script> 
-</body>
-</html>
+<section class="care-strip"><div class="container care-strip-inner"><span><?= icon('shirt',28) ?> Everyday favourites</span><span><?= icon('spark',28) ?> Special-care pieces</span><span><?= icon('bag',28) ?> One simple booking</span></div></section>
+<section class="section container"><div class="section-heading"><h2>The right care.<br>For every wear.</h2><div><p>A wash for the week ahead. A press for the big day. Find what your clothes need.</p><a class="text-link" href="<?= h(url('package.php')) ?>">View all services <?= icon('arrow',18) ?></a></div></div><div class="service-list"><?php service_rows($services,3) ?></div></section>
+<section class="section story-section"><div class="container story-grid"><div class="story-photo"><img src="<?= h(asset('assets/photos/home-laundry.jpg')) ?>" alt="A laundry basket beside a green armchair in a sunlit room" width="1100" height="1100" loading="lazy"></div><div class="story-copy"><h2>A little less laundry.<br>A little more life.</h2><p>Some things deserve your time. Sorting through a growing laundry pile does not have to be one of them.</p><p>EcoLeaf brings service selection, pickup scheduling, and order updates into one place. Your next fresh start is a few choices away.</p><a class="button" href="<?= h(url('about.php')) ?>">Get to know EcoLeaf <?= icon('arrow') ?></a></div></div></section>
+<section class="section container" id="how-it-works"><div class="section-heading"><h2>From basket<br>to booked.</h2><p>Choose what you need. We keep the next steps clear.</p></div><ol class="steps"><li><span class="step-number">1</span><h3>Choose your care</h3><p>Browse services and add the items you want cleaned.</p></li><li><span class="step-number">2</span><h3>Plan your pickup</h3><p>Choose a date and tell us where to collect your laundry.</p></li><li><span class="step-number">3</span><h3>Follow your order</h3><p>See when your booking is scheduled, in care, or completed.</p></li></ol></section>
+<?php if ($reviews): ?><section class="section reviews-section"><div class="container"><div class="section-heading"><h2>From the people<br>who booked.</h2><p>Reviews submitted by EcoLeaf customers.</p></div><div class="reviews-grid"><?php foreach($reviews as $review): ?><figure class="review"><div class="stars" aria-label="<?= (int)$review['rating'] ?> out of 5 stars"><?php for($i=0;$i<(int)$review['rating'];$i++) echo icon('star',17) ?></div><blockquote><?= h($review['comment']) ?></blockquote><figcaption><?= h($review['username']) ?></figcaption></figure><?php endforeach ?></div></div></section><?php endif ?>
+<section class="container closing-section"><h2>Give your laundry<br>a day off your mind.</h2><a class="button button-light" href="<?= h(url('booking.php')) ?>">Book your pickup <?= icon('arrow') ?></a></section>
+</main><script type="module" src="<?= h(asset('assets/washer.js')) ?>"></script>
+<?php page_end() ?>

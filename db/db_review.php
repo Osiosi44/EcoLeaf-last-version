@@ -1,32 +1,11 @@
 <?php
-require_once "db_con.php";
-require "config_session.php";
-
-$comment = $_POST['comment'];
-$user_id = $_SESSION['user_id']; 
-$rating = $_POST['rating']; 
-
-
-if (empty($comment) || !$user_id || ($rating && ($rating < 1 || $rating > 5))) {
-    echo "Error: Please provide a valid comment and ensure the rating is between 1 and 5.";
-    exit;
+require_once __DIR__ . '/app.php';
+require_post();$user=require_user();rate_limit('review',3,3600,(string)$user['id']);
+$comment=post('comment');$rating=filter_var($_POST['rating']??null,FILTER_VALIDATE_INT);
+if (!$rating || $rating<1 || $rating>5 || text_length($comment)<5 || text_length($comment)>1500) {
+    flash('error','Choose a rating from 1 to 5 and write a review between 5 and 1,500 characters.');redirect('my_orders.php#review');
 }
-
-
-$stmt = $con->prepare("INSERT INTO reviews (user_id, rating, comment) VALUES (?, ?, ?)");
-if (!$stmt) {
-    die("Prepare failed: " . $con->error);
-}
-
-$stmt->bind_param("sss", $user_id, $rating, $comment);
-
-if ($stmt->execute()) {
-    echo "Review submitted successfully!";
-    header("Location: ../my_orders.php");
-} else {
-    echo "Error: " . $stmt->error;
-}
-
-
-$stmt->close();
-$con->close();
+$stmt=db()->prepare("SELECT order_id FROM orders WHERE user_id=? AND status='complete' LIMIT 1");$stmt->bind_param('i',$user['id']);$stmt->execute();
+if (!$stmt->get_result()->fetch_assoc()) reject(403,'You can leave a review after a completed order.');
+$stmt=db()->prepare('INSERT INTO reviews (user_id,rating,comment) VALUES (?,?,?)');$stmt->bind_param('iis',$user['id'],$rating,$comment);$stmt->execute();
+flash('success','Thank you. Your review has been published.');redirect('my_orders.php');

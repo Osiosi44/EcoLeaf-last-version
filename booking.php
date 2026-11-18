@@ -1,112 +1,21 @@
 <?php
-require "db/db_con.php";
-
-$query = "SELECT s.service_id, s.service_name, s.description, s.price AS base_price, 
-          o.option_id, o.option_name, o.price AS option_price
-          FROM services s 
-          LEFT JOIN service_options o ON s.service_id = o.service_id";
-
-$result = $con->query($query);
-
-$services = [];
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        if (stripos($row['service_name'], 'delivery') !== false) {
-            continue;
-        }
-        $serviceId = $row['service_id'];
-        $serviceName = $row['service_name'];
-        $description = $row['description'];
-        $basePrice = $row['base_price'];
-
-        if (!isset($services[$serviceId])) {
-            $services[$serviceId] = [
-                'service_id' => $serviceId,
-                'service_name' => $serviceName,
-                'description' => $description,
-                'base_price' => $basePrice,
-                'options' => []
-            ];
-        }
-
-        if (!empty($row['option_name'])) {
-            $services[$serviceId]['options'][] = [
-                'option_id' => $row['option_id'],
-                'name' => $row['option_name'],
-                'price' => $row['option_price']
-            ];
-        }
-    }
-} else {
-    echo "No services found.";
-}
-
-$con->close();
+require_once __DIR__.'/components/layout.php';
+$services=service_catalog();$user=current_user();$state=form_state('booking');$errors=$state['errors'];$values=$state['values'];
+$token=bin2hex(random_bytes(16));$_SESSION['booking_tokens'][$token]=true;
+if (count($_SESSION['booking_tokens'])>15) $_SESSION['booking_tokens']=array_slice($_SESSION['booking_tokens'],-15,null,true);
+page_start('Book a pickup','booking');
 ?>
-<section class="services_section">
-    <div class="services_wrapper">
-        <h1>Pick your choices ...</h1>
-        <button class="hide-services" onclick="hidebooking()">&times;</button>
-
-        <form id="bookingForm" action="process_order.php" method="POST">
-            <!-- part 1 -->
-            <div class="services_s">
-                <h2>Select Services</h2>
-                <div class="services_container_1">
-                    <div class="services">
-                        <?php foreach ($services as $serviceId => $service): ?>
-                            <button type="button" class="service_1 service-<?php echo htmlspecialchars($service['service_id']) ?>" onclick="toggleServiceList('service-<?php echo htmlspecialchars($service['service_id']) ?>-list', 'service-<?php echo htmlspecialchars($service['service_id']) ?>')">
-                                <h2><?php echo htmlspecialchars($service['service_name']) ?></h2>
-                            </button>
-                        <?php endforeach; ?>
-                    </div>
-                    <div class="services_list">
-                        <?php foreach ($services as $serviceId => $service): ?>
-                            <div id="service-<?php echo htmlspecialchars($service['service_id']) ?>-list" class="ser_list hidden">
-                                <h3><?php echo htmlspecialchars($service['service_name']) ?> Options</h3>
-                                <?php foreach ($service['options'] as $option): ?>
-                                    <label>
-                                        <input type="checkbox" class="check_name" value="<?php echo htmlspecialchars($option['name']) ?>" data-option-id="<?php echo htmlspecialchars($option['option_id']) ?>" data-price="<?php echo htmlspecialchars($option['price']) ?>">
-                                        <?php echo htmlspecialchars($option['name']) ?> - $<?php echo htmlspecialchars($option['price']) ?>
-                                        <input type="number" class="qty-input" min="0" placeholder="Qty" name="quantity_<?php echo htmlspecialchars($option['option_id']) ?>" data-option-id="<?php echo htmlspecialchars($option['option_id']) ?>">
-                                    </label>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <div class="selection_container">
-                    <h2>Your services</h2>
-                    <ul id="selectedItems">
-
-                    </ul>
-                    <button class="nextBtn hidden" type="button">Next</button>
-                </div>
-            </div>
-
-            <!-- part 2 -->
-            <div class="finish_booking hidden">
-                <h2>Finish Booking</h2>
-                <div class="flex">
-                    <div class="inputBox">
-                        <span>Address:</span>
-                        <input type="text" id="address" name="address" required>
-                    </div>
-                    <div class="inputBox">
-                        <span>Pickup Date</span>
-                        <input type="date" id="pickup_date" name="pickup_date" required>
-                    </div>
-                    <!-- <div class="inputBox">
-                        <label for="delivery_date">Delivery Date</label>
-                        <input type="date" id="delivery_date" name="delivery_date" readonly>
-                    </div> -->
-                    <div class="inputBox">
-                        <span>Total Price</span>
-                        <input type="text" id="t_price" name="total_price" readonly>
-                    </div>
-                </div>
-                <button type="submit">Submit Booking</button>
-            </div>
-        </form>
-    </div>
-</section>
+<main id="main" class="container"><section class="page-heading compact-heading"><h1>Let's lighten<br>your laundry load.</h1><p>Pick your items, choose a date, and leave the rest on your order.</p></section>
+<?php if(!$user): ?><div class="notice notice-info">You can explore options now. <a href="<?= h(url('login.php?next=booking.php')) ?>">Sign in</a> or <a href="<?= h(url('login.php?mode=signup&next=booking.php')) ?>">create an account</a> to confirm your pickup.</div><?php endif ?>
+<form id="booking-form" action="<?= h(url('process_order.php')) ?>" method="post" class="booking-layout" data-booking-form data-signed-in="<?= $user?'true':'false' ?>">
+<?= csrf_field() ?><input type="hidden" name="booking_token" value="<?= h($token) ?>">
+<div class="booking-selection"><h2>Choose your care</h2><p>Set a quantity for each item. Leave anything you do not need at zero.</p><div class="notice notice-error" role="alert" id="booking-error" <?= $errors?'':'hidden' ?>><?= h(implode(' ',$errors)) ?></div><div class="booking-services">
+<?php $i=0; foreach($services as $service): if(!$service['options']) continue; $open=query('service')!==''?(int)query('service')===(int)$service['service_id']:$i===0; $i++; ?>
+<details class="booking-service" <?= $open?'open':'' ?>><summary><span><?= icon('shirt',23) ?><?= h($service['service_name']) ?></span><?= icon('chevron',18) ?></summary><div class="option-list"><?php foreach($service['options'] as $option): $id=(int)$option['option_id']; ?>
+<div class="option-row"><label for="qty-<?= $id ?>"><strong><?= h($option['option_name']) ?></strong><span><?= money($option['price']) ?> per unit</span></label><div class="quantity-control"><button class="quantity-button" type="button" data-quantity-change="-1" aria-controls="qty-<?= $id ?>" aria-label="Remove one <?= h($option['option_name']) ?>"><?= icon('minus',15) ?></button><input id="qty-<?= $id ?>" name="items[<?= $id ?>]" type="number" min="0" max="1000" step="1" value="0" inputmode="numeric" data-option="<?= $id ?>" data-name="<?= h($option['option_name']) ?>" data-cents="<?= cents($option['price']) ?>" aria-label="Quantity of <?= h($option['option_name']) ?>"><button class="quantity-button" type="button" data-quantity-change="1" aria-controls="qty-<?= $id ?>" aria-label="Add one <?= h($option['option_name']) ?>"><?= icon('plus',15) ?></button></div></div>
+<?php endforeach ?></div></details><?php endforeach ?>
+</div><div class="pickup-details"><h2>Plan your pickup</h2><div class="form-grid"><?php field('pickup_date','Pickup date','date',$values['pickup_date']??'',$errors,'required min="'.date('Y-m-d').'" max="'.date('Y-m-d',strtotime('+1 year')).'"'); ?><?php field('address','Pickup address','text',$values['address']??($user['addres']??''),$errors,'required maxlength="255" autocomplete="street-address" placeholder="Street, building, and area"'); ?></div><p class="field-hint">Check the address and date before confirming. This demo does not arrange real pickups.</p></div></div>
+<aside class="order-summary" aria-labelledby="summary-heading"><h2 id="summary-heading">Your laundry bag</h2><div class="summary-empty" id="summary-empty"><?= icon('bag',42) ?><p>Your bag is waiting.<br>Add a few items to get started.</p></div><ul id="summary-items" class="summary-items"></ul><div class="summary-total"><span>Estimated total</span><strong id="booking-total" aria-live="polite" aria-atomic="true">$0.00</strong></div><p class="field-hint">Based on the catalog prices of your selected items.</p><noscript><p>Enable JavaScript to preview the total as you choose items. The server uses the listed item prices when saving your booking.</p></noscript>
+<?php if($user): ?><button class="button button-block" type="submit" id="booking-submit">Confirm pickup <?= icon('arrow') ?></button><?php else: ?><a class="button button-block" href="<?= h(url('login.php?next=booking.php')) ?>">Sign in to book <?= icon('arrow') ?></a><?php endif ?>
+<a class="summary-back" href="<?= h(url('package.php')) ?>">Back to services</a></aside></form></main>
+<?php page_end() ?>

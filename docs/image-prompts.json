@@ -1,0 +1,56 @@
+{
+  "generator": "Built-in image_gen tool",
+  "generated_date": "2026-11-19",
+  "purpose": "Illustrative images for the EcoLeaf demonstration website; not actual staff, facilities, or products.",
+  "images": [
+    {
+      "asset": "assets/photos/dry-cleaning.jpg",
+      "prompt": "Create a premium photorealistic editorial photograph for the Dry Cleaning service of EcoLeaf, a modern green laundry booking website. Landscape composition 3:2, garment-focused close-up: three impeccably pressed light-blue and white business shirts and one charcoal blazer on evenly spaced wooden hangers, clean pale sage background, soft natural daylight, realistic woven fabric and crisp collars, calm fresh green-and-white visual palette with restrained warm wood. Focus on the actual dry-cleaning subject, central composition safe to crop to a small landscape thumbnail. No people, no text, no logos, no watermarks, no collage. This is a single original website service photograph, not a website mockup.",
+      "source_sha256": "e6a9b8bab86d8932b82d31c2a509ea2e35c28ab91092d6af6bb59c7b7d040303",
+      "asset_sha256": "8a6eb701319d9e389019675ca7ba738b573aaa05e3aba029f87d0941a6094595",
+      "processing": "Resized and JPEG encoded at quality 84 for web delivery; generated PNG preserved separately."
+    },
+    {
+      "asset": "assets/photos/wash-fold.jpg",
+      "prompt": "Create one premium photorealistic editorial photograph for EcoLeaf's Wash and Fold laundry service. Landscape 3:2. Three tidy stacks of freshly laundered cotton towels and simple everyday T-shirts folded neatly on a pale oak laundry counter, one soft sage towel, mostly ivory white and pale blue fabrics, tangible cotton texture, soft daylight, clean uncluttered laundry background. Medium close-up; center the folded fabric so it remains recognizable in a small landscape thumbnail. Clearly a washing-and-folding service subject, not hanging garments, not ironing, not a basket of dirty laundry. No people, text, logos, labels, watermarks, or collage. Fresh restrained green-and-white website palette.",
+      "source_sha256": "0f3b300618b5b3d6e8abd97e03f0d55b1dd5f3dc9c3883aa68d06160b43db52a",
+      "asset_sha256": "68e1bf165bcf31ee7a108dd9f71d30044fd8dd3ba9ca40699a672ca05190da86",
+      "processing": "Resized and JPEG encoded at quality 84 for web delivery; generated PNG preserved separately."
+    },
+    {
+      "asset": "assets/photos/alterations.jpg",
+      "prompt": "Create one premium photorealistic editorial photograph for EcoLeaf's Alterations and Repairs service. Landscape 3:2. Close-up of a professional sewing machine presser foot and needle actively stitching a neat seam in sage-green cotton fabric, a measuring tape and one pair of tailoring shears softly visible beside it, detailed realistic fabric weave and stitching, clean ivory tailoring work surface, natural daylight. The sewing machine and seam must be immediately recognizable in a small thumbnail, with the working area centered. No hands or people, no text, no numbers on the measuring tape prominent, no logos, no watermarks, no collage. Distinct photograph about garment repair rather than laundry washing.",
+      "source_sha256": "3c5f5124127287d40783ada61fb0cd77e8bd726264f5b2ff1202ba6220d5151a",
+      "asset_sha256": "8e6617e58b494481db97a2363fcce367793c1606ef51976c2f78184eb123672c",
+      "processing": "Resized and JPEG encoded at quality 84 for web delivery; generated PNG preserved separately."
+    },
+    {
+      "asset": "assets/photos/delicate-care.jpg",
+      "prompt": "Create one premium photorealistic editorial photograph for EcoLeaf's Special Care Washing service. Landscape 3:2. A close tactile still life of an ivory silk blouse gently draped beside a folded fine-knit pale sage wool sweater, elegant natural folds, silk's subtle soft sheen contrasting with the wool knit texture, laid on a clean warm-white laundry work surface. Medium-close composition centered on these delicate garments, soft window light, refined muted green and ivory palette. The subjects are clearly delicate clothing requiring gentle care, not towel stacks, not sewing, not ironing. No people, flowers, care-label text, written words, logos, watermarks, or collage.",
+      "source_sha256": "be29cb3ee1cf7cb720ced01c1470cc8ac28fc577915289dc942c5210dc8cb0c9",
+      "asset_sha256": "1b82d23c6de7f3073cdd4aef77b0173128402f3ebc58f9cade4a2ce3b60fb32a",
+      "processing": "Resized and JPEG encoded at quality 84 for web delivery; generated PNG preserved separately."
+    },
+    {
+      "asset": "assets/photos/ironing.jpg",
+      "prompt": "Create one premium photorealistic editorial photograph for EcoLeaf's Ironing and Pressing laundry service. Landscape 3:2. Close-up of a modern unbranded steam iron resting safely on a pale-blue cotton shirt spread flat over a clean ivory ironing board; a small subtle wisp of steam, crisp sleeve and collar detail, no hands or people. Soft daylight, pale sage studio wall and warm natural light, refined green-white-blue palette. The iron and shirt must be clearly recognizable and centrally framed for cropping to a small service thumbnail. No words, logos, watermarks, collage, hanging garments, or towel stacks.",
+      "source_sha256": "9ee7a055a13fd704660bad7c888b5b22dbd9d83ee5632674d9c9a249773d20b6",
+      "asset_sha256": "0f51685bd8058c2d224f87f57c6643fd28f665347460b181e9a5b9e49050c575",
+      "processing": "Resized and JPEG encoded at quality 84 for web delivery; generated PNG preserved separately."
+    },
+    {
+      "asset": "assets/photos/home-laundry.jpg",
+      "prompt": "Create one premium photorealistic lifestyle photograph for the home-page story section of EcoLeaf, a green laundry service website. Square composition. A sunlit calm corner of a modern home: a natural woven laundry basket holding a few relaxed light-blue and cream everyday garments beside a comfortable sage-green armchair and a book on a simple oak side table. The story is getting time back from chores, not a laundry processing facility. Show the basket and chair together, garments in the basket not folded into stacks, natural fabric textures, soft bright daylight, quiet clean room, airy green and white palette. No people, faces, readable writing, logos, watermarks, collage, ironing equipment, sewing machines, or product advertising. Keep important objects within the central safe crop.",
+      "source_sha256": "6ced65cffcb07518911b7119ba70eb3b3f0c81da4fe87419683852715390123d",
+      "asset_sha256": "411a9c07492a05325714fc8d96cd1dd094fedf1a0dd7fa8d02819bdd40b2e82d",
+      "processing": "Resized and JPEG encoded at quality 84 for web delivery; generated PNG preserved separately."
+    },
+    {
+      "asset": "assets/photos/about-garment-care.jpg",
+      "prompt": "Create one premium photorealistic editorial photograph for the About page of EcoLeaf, illustrating careful garment handling, not a claim about actual company staff. Landscape 3:2 composition. Close-up only of the hands of a dark-skinned adult carefully inspecting the collar and seam of a clean ivory linen shirt on a pale oak garment-care workbench; a few wooden hangers and a softly blurred sage-green rail in the background. Hands anatomically correct, realistic textile weave, clean careful workmanship, soft natural daylight. Focus on human attention to a garment, distinct from machines, ironing, sewing, folded towels, and lifestyle baskets. No face, no uniform branding, no text, no labels with legible writing, no logos, no watermarks, no collage.",
+      "source_sha256": "86715f6bda754e05f45f89ef07f4c011a682d98258d90a17bd77b00aae6ce5e6",
+      "asset_sha256": "384671b5aa44d313e07ddc1fb6e9982d5fe57f6ca0969ea197885b7fe6bb4a8f",
+      "processing": "Resized and JPEG encoded at quality 84 for web delivery; generated PNG preserved separately."
+    }
+  ]
+}

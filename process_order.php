@@ -1,61 +1,55 @@
 <?php
-require_once __DIR__ . '/db/config_session.php';
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    exit('Please log in before booking.');
+require_once __DIR__ . '/db/app.php';
+require_post();$user=require_user();
+function booking_error(array $errors): never {
+    if (wants_json()) json_response(['error'=>'Check your booking details.','errors'=>$errors],422);
+    form_fail('booking',$errors,'booking.php',['address'=>post('address'),'pickup_date'=>post('pickup_date')]);
 }
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    header('Allow: POST');
-    exit('Please submit the booking form.');
+$bookingToken=post('booking_token');
+if (!preg_match('/^[a-f0-9]{32}$/D',$bookingToken) || !isset($_SESSION['booking_tokens'][$bookingToken])) booking_error(['form'=>'Reload the booking page before placing your order.']);
+if (is_int($_SESSION['booking_tokens'][$bookingToken])) {
+    $receipt=$_SESSION['booking_tokens'][$bookingToken];
+    if (wants_json()) json_response(['order_id'=>$receipt,'redirect'=>url('my_orders.php')]);
+    redirect('my_orders.php');
 }
-require __DIR__ . '/db/db_con.php';
+rate_limit('booking',20,3600,(string)$user['id']);
+$address=post('address');$pickupDate=post('pickup_date');$errors=[];
+$date=DateTimeImmutable::createFromFormat('!Y-m-d',$pickupDate);
+if ($address==='' || text_length($address)>255) $errors['address']='Enter a pickup address of up to 255 characters.';
+if (!$date || $date->format('Y-m-d')!==$pickupDate || $date<new DateTimeImmutable('today') || $date>new DateTimeImmutable('+1 year')) $errors['pickup_date']='Choose a pickup date from today through the next year.';
+$requested=$_POST['items']??[];
+if (!is_array($requested) || count($requested)>100) $errors['items']='Choose valid service quantities.';
+if ($errors) booking_error($errors);
+$items=[];
+foreach ($requested as $id=>$quantity) {
+    if ($quantity==='0' || $quantity==='' || $quantity===0) continue;
+    $optionId=filter_var($id,FILTER_VALIDATE_INT);$amount=filter_var($quantity,FILTER_VALIDATE_INT);
+    if (!$optionId || $optionId<1 || !$amount || $amount<1 || $amount>1000) booking_error(['items'=>'Use whole-number quantities between 0 and 1,000.']);
+    $items[]=['option_id'=>$optionId,'quantity'=>$amount];
+}
+if (!$items) booking_error(['items'=>'Select at least one service to book.']);
+$connection=db();$connection->begin_transaction();
 try {
-    $address = trim((string) ($_POST['address'] ?? ''));
-    $pickupDate = (string) ($_POST['pickup_date'] ?? '');
-    $date = DateTimeImmutable::createFromFormat('!Y-m-d', $pickupDate);
-    if ($address === '' || strlen($address) > 255 || !$date || $date->format('Y-m-d') !== $pickupDate) {
-        throw new InvalidArgumentException('Enter a valid address and pickup date.');
+    $totalCents=0;
+    $lookup=$connection->prepare('SELECT option_id,service_id,price FROM service_options WHERE option_id=? FOR UPDATE');
+    foreach ($items as &$item) {
+        $lookup->bind_param('i',$item['option_id']);$lookup->execute();$option=$lookup->get_result()->fetch_assoc();
+        if (!$option) { $connection->rollback();booking_error(['items'=>'A selected service is no longer available. Reload and select again.']); }
+        $item['service_id']=(int)$option['service_id'];$item['price']=$option['price'];$totalCents+=cents($option['price'])*$item['quantity'];
     }
-    $items = [];
-    $totalCents = 0;
-    $lookup = $con->prepare('SELECT option_id, service_id, price FROM service_options WHERE option_name = ?');
-    foreach ($_POST as $key => $value) {
-        if (strpos($key, 'option_name_') !== 0) continue;
-        $index = substr($key, strlen('option_name_'));
-        $quantity = filter_var($_POST['quantity_' . $index] ?? null, FILTER_VALIDATE_INT);
-        if (!$quantity || $quantity < 1 || $quantity > 1000 || !is_string($value)) {
-            throw new InvalidArgumentException('Enter a valid item quantity.');
-        }
-        $lookup->bind_param('s', $value);
-        $lookup->execute();
-        $option = $lookup->get_result()->fetch_assoc();
-        if (!$option) throw new InvalidArgumentException('A selected service is unavailable.');
-        $option['quantity'] = $quantity;
-        $items[] = $option;
-        $totalCents += (int) round((float) $option['price'] * 100) * $quantity;
-    }
-    if (!$items || $totalCents <= 0) throw new InvalidArgumentException('Select at least one service.');
-    $con->begin_transaction();
-    $total = $totalCents / 100;
-    $userId = (int) $_SESSION['user_id'];
-    $order = $con->prepare('INSERT INTO orders (user_id, address, pickup_date, total) VALUES (?, ?, ?, ?)');
-    $order->bind_param('issd', $userId, $address, $pickupDate, $total);
-    $order->execute();
-    $orderId = $con->insert_id;
-    $item = $con->prepare('INSERT INTO order_items (order_id, service_id, service_option_id, quantity, price) VALUES (?, ?, ?, ?, ?)');
-    foreach ($items as $option) {
-        $item->bind_param('iiiid', $orderId, $option['service_id'], $option['option_id'], $option['quantity'], $option['price']);
-        $item->execute();
-    }
-    $con->commit();
-    echo 'Booking successful! Your order ID is ' . $orderId . '.';
-} catch (InvalidArgumentException $exception) {
-    http_response_code(422);
-    echo $exception->getMessage();
-} catch (Throwable $exception) {
-    $con->rollback();
-    error_log('Booking failed: ' . $exception->getMessage());
-    http_response_code(500);
-    echo 'The booking could not be saved. Please try again.';
+    unset($item);
+    if ($totalCents<=0 || $totalCents>9999999999) { $connection->rollback();booking_error(['items'=>'Choose a valid order total.']); }
+    $total=number_format($totalCents/100,2,'.','');
+    $stmt=$connection->prepare('INSERT INTO orders (user_id,address,pickup_date,total) VALUES (?,?,?,?)');
+    $stmt->bind_param('isss',$user['id'],$address,$pickupDate,$total);$stmt->execute();$orderId=$connection->insert_id;
+    $insert=$connection->prepare('INSERT INTO order_items (order_id,service_id,service_option_id,quantity,price) VALUES (?,?,?,?,?)');
+    foreach ($items as $item) { $insert->bind_param('iiiis',$orderId,$item['service_id'],$item['option_id'],$item['quantity'],$item['price']);$insert->execute(); }
+    $connection->commit();$_SESSION['booking_tokens'][$bookingToken]=$orderId;
+} catch (Throwable $error) {
+    $connection->rollback();error_log('Booking failed: '.$error);
+    if (wants_json()) json_response(['error'=>'Your booking could not be saved. Please try again.'],500);
+    flash('error','Your booking could not be saved. Please try again.');redirect('booking.php');
 }
+flash('success','Booking #'.$orderId.' is scheduled. You can track it below.');
+if (wants_json()) json_response(['order_id'=>$orderId,'redirect'=>url('my_orders.php')],201);
+redirect('my_orders.php');

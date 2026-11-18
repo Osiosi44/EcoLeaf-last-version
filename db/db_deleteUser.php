@@ -1,47 +1,20 @@
 <?php
-require_once __DIR__ . '/config_session.php';
-
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../login.php");
-    die();
+require_once __DIR__ . '/app.php';
+require_post(); $user=require_user();
+$password=is_string($_POST['current_password']??null) ? $_POST['current_password'] : '';
+$stmt=db()->prepare('SELECT hashed_password FROM users WHERE id=?'); $stmt->bind_param('i',$user['id']); $stmt->execute();
+if (post('confirmation')!=='DELETE' || !password_verify($password,$stmt->get_result()->fetch_assoc()['hashed_password'])) {
+    flash('error','To delete your account, enter your current password and type DELETE.'); redirect('profile.php#delete-account');
 }
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    try {
-        require_once "db_con.php";
-        $username = $_SESSION['user_username'];
-
-        $con->query("SET SQL_SAFE_UPDATES = 0");
-
-        $query = "DELETE FROM users WHERE username = ?";
-        $stmt = $con->prepare($query);
-
-        if (!$stmt) {
-            throw new Exception("Failed to prepare statement: " . $con->error);
-        }
-
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-
-        $con->query("SET SQL_SAFE_UPDATES = 1");
-
-        if ($stmt->affected_rows > 0) {
-            session_destroy();
-            header("Location: ../login.php?msg=User+deleted+successfully!");
-            exit();
-        } else {
-            throw new Exception("No user found with the given username.");
-        }
-
-        $stmt->close();
-        $con->close();
-    } catch (Exception $ex) {
-        echo "<script>alert('Error: " . htmlspecialchars($ex->getMessage()) . "');</script>";
-        header("Refresh: 0; url=../login.php");
-        die();
+$connection=db();$connection->begin_transaction();
+try {
+    account_write_lock($connection);
+    if ($user['role']==='admin' && (int)$connection->query("SELECT COUNT(*) FROM users WHERE role='admin'")->fetch_row()[0] <= 1) {
+        $connection->rollback(); flash('error','Create another administrator before deleting the last administrator account.');redirect('profile.php');
     }
-} else {
-    header("Location: ../login.php");
-    die();
-}
-?>
+    // Explicit child deletion also supports older installations without cascading foreign keys.
+    $stmt=$connection->prepare('DELETE oi FROM order_items oi JOIN orders o ON o.order_id=oi.order_id WHERE o.user_id=?'); $stmt->bind_param('i',$user['id']);$stmt->execute();
+    foreach (['reviews','orders'] as $table) { $stmt=$connection->prepare('DELETE FROM '.$table.' WHERE user_id=?');$stmt->bind_param('i',$user['id']);$stmt->execute(); }
+    $stmt=$connection->prepare('DELETE FROM users WHERE id=?');$stmt->bind_param('i',$user['id']);$stmt->execute();$connection->commit();
+} catch (Throwable $error) { $connection->rollback();throw $error; }
+destroy_login();redirect('home.php');

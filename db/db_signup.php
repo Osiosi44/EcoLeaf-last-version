@@ -1,74 +1,23 @@
 <?php
-// session_start();
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $name = $_POST['name'];
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $contact = $_POST['phone'];
-    $address = $_POST['address'];
-
-    try {
-        require_once "db_con.php";
-        require_once "signup_MVC/model.php";
-        require_once "signup_MVC/contr.php";
-
-//----------------------------------------------------------------
-        $errors = [];
-
-        if(is_input_empty($name, $username, $contact, $address, $email, $password)){
-            $errors["empty_input"] = "Please fill all fields!";
-        }
-        if(is_email_invalid($email)){
-            $errors["invalid_email"] = "Invalid email used!";
-        }
-        if(is_username_taken($con, $username)){
-            $errors["username_taken"] = "Username already taken!";
-        }
-        if(is_email_registered($con, $email)){
-            $errors["email_used"] = "Email already registered!";
-        }
-        if(is_contact_registered($con, $contact)){
-            $errors["contact_used"] = "Contact number already registered!";
-        }
-
-        require_once 'config_session.php';
-
-        if($errors){
-            $_SESSION["errors_signup"] = $errors;
-
-            $signupData = [
-                "name" => $name,
-                "username" => $username,
-                "email" => $email,
-                "contact" => $contact,
-                "address" => $address,
-            ];
-            $_SESSION["signup_data"] = $signupData;
-
-            header("Location: ../login.php");
-            die();
-        }
-//----------------------------------------------------------------
-
-        $query = "INSERT INTO users (full_name, username, phone_number, addres, email, hashed_password) VALUES (?, ?, ?, ?, ?, ?);";
-        $stmt = $con->prepare($query);
-        
-        $hashed_password = password_hash($password, PASSWORD_BCRYPT,['cost'=>12]);
-        
-        $stmt->bind_param("ssssss", $name, $username, $contact, $address, $email, $hashed_password);
-        $stmt->execute();
-        
-        header("Location: ../login.php?signup=success");
-        $stmt->close();
-        $con->close();
-        
-        die();
-
-    } catch (Exception $e) {
-        die("Query failed: " . $e->getMessage());
+require_once __DIR__ . '/app.php';
+require_post();
+rate_limit('signup', 8, 3600);
+$name=post('name'); $username=post('username'); $email=strtolower(post('email')); $phone=post('phone'); $address=post('address');
+$password = is_string($_POST['password'] ?? null) ? $_POST['password'] : '';
+$next=safe_next(post('next'));
+$destination='login.php?mode=signup&next=' . rawurlencode($next);
+$values=compact('name','username','email','phone','address');
+$errors=account_errors($name,$username,$email,$phone,$address,$password);
+if ($errors) form_fail('signup',$errors,$destination,$values);
+$connection=db(); $connection->begin_transaction();
+try {
+    account_write_lock($connection);
+    if ($duplicate=duplicate_account($connection,$username,$email)) {
+        $connection->rollback(); form_fail('signup',[$duplicate=>'This '.$duplicate.' is already registered.'],$destination,$values);
     }
-} else {
-    header("Location: ../login.php");
-    die();
-}
+    $hash=password_hash($password,PASSWORD_DEFAULT);
+    $stmt=$connection->prepare('INSERT INTO users (full_name,username,email,phone_number,addres,hashed_password) VALUES (?,?,?,?,?,?)');
+    $stmt->bind_param('ssssss',$name,$username,$email,$phone,$address,$hash); $stmt->execute(); $connection->commit();
+} catch (Throwable $error) { $connection->rollback(); throw $error; }
+flash('success','Your account is ready. Sign in to book your first pickup.');
+redirect('login.php?next='.rawurlencode($next));

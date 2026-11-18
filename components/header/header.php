@@ -1,5 +1,8 @@
 <section class="header">
-    <a href="home.php" class="logo">Eco<span class="leaf">Leaf</span></a>
+    <a href="home.php" class="logo" aria-label="EcoLeaf home">
+        <img src="images/leaf.png" alt="" width="36" height="36">
+        <span>Eco<span class="leaf">Leaf</span></span>
+    </a>
     <nav class="navbar">
         <a href="home.php">home</a>
         <a href="about.php">about us</a>

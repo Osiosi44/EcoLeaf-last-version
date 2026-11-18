@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-18T21:22:29.363Z",
+  "title": "Design System: EcoLeaf",
+  "platform": "web",
+  "sourceReferences": [
+    "DESIGN.md",
+    "PRODUCT.md",
+    "docs/redesign-brief.md",
+    "styles.css",
+    "components/layout.php",
+    "assets/washer.js",
+    "docs/asset-provenance.md",
+    "artifacts/qa/home-viewport.png",
+    "artifacts/qa/admin-services-390.png"
+  ],
+  "provenance": {
+    "method": "Extracted from current PHP/CSS/JavaScript implementation and representative rendered screenshots.",
+    "catalogWorld": null,
+    "validation": "Local browser checks passed; independent finish reviewer returned SHIP. Impeccable engine, detector and comp-gates were unavailable and were not run. No live-host deployment is implied.",
+    "tonalRamps": "Omitted: the source has semantic colors, not an eight-step tonal scale. No synthetic palette is presented as an implemented token."
+  },
+  "extensions": {
+    "colorMeta": {
+      "green": {
+        "role": "primary",
+        "displayName": "Forest green",
+        "source": "styles.css: :root --green"
+      },
+      "green-dark": {
+        "role": "primary",
+        "displayName": "Deep forest hover",
+        "source": "styles.css: :root --green-dark"
+      },
+      "mint": {
+        "role": "primary",
+        "displayName": "Quiet mint",
+        "source": "styles.css: :root --mint"
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Soft canvas",
+        "source": "styles.css: :root --canvas"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Forest ink",
+        "source": "styles.css: :root --ink"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Public display",
+        "purpose": "Balanced public h1 headings; responsive component overrides apply.",
+        "source": "styles.css: h1, .hero h1"
+      },
+      "body": {
+        "displayName": "Manrope body",
+        "purpose": "Self-hosted variable Manrope; body becomes 14px at 600px.",
+        "source": "styles.css: @font-face, body; assets/fonts/Manrope-Variable.ttf"
+      }
+    },
+    "shadows": [
+      {
+        "name": "ambient",
+        "value": "0 12px 35px rgba(24,60,48,.09)",
+        "purpose": "Shared --shadow token, currently used by the skip link.",
+        "source": "styles.css: :root, .skip-link"
+      },
+      {
+        "name": "button-hover",
+        "value": "0 6px 14px rgba(21,108,69,.13)",
+        "purpose": "Primary button hover.",
+        "source": "styles.css: .button:hover"
+      },
+      {
+        "name": "mobile-navigation",
+        "value": "0 14px 24px rgba(24,60,48,.08)",
+        "purpose": "Expanded navigation at 1100px and below.",
+        "source": "styles.css: @media(max-width:1100px)"
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "Lifted controls and hero arrival.",
+        "source": "styles.css: :root --ease"
+      },
+      {
+        "name": "control-background",
+        "value": ".2s",
+        "purpose": "Button and icon-button background transitions.",
+        "source": "styles.css: .button, .icon-button"
+      },
+      {
+        "name": "control-transform",
+        "value": ".25s",
+        "purpose": "Button/icon lift, with --ease.",
+        "source": "styles.css: .button, .icon-button"
+      },
+      {
+        "name": "hero-copy",
+        "value": ".8s",
+        "purpose": "12px upward arrival.",
+        "source": "styles.css: .hero-copy, @keyframes hero-arrive"
+      },
+      {
+        "name": "hero-illustration",
+        "value": "1s",
+        "purpose": "Hero visual arrival.",
+        "source": "styles.css: .hero-visual"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-min",
+        "value": "1600px",
+        "query": "(min-width:1600px)"
+      },
+      {
+        "name": "navigation-max",
+        "value": "1100px",
+        "query": "(max-width:1100px)"
+      },
+      {
+        "name": "tablet-max",
+        "value": "800px",
+        "query": "(max-width:800px)"
+      },
+      {
+        "name": "phone-max",
+        "value": "600px",
+        "query": "(max-width:600px)"
+      },
+      {
+        "name": "narrow-phone-max",
+        "value": "360px",
+        "query": "(max-width:360px)"
+      }
+    ],
+    "focus": {
+      "value": "3px solid #257653",
+      "offset": "4px",
+      "source": "styles.css: shared :focus-visible selectors"
+    },
+    "reducedMotion": {
+      "query": "(prefers-reduced-motion: reduce)",
+      "css": "Disable animations, transitions and smooth scrolling; restore hero opacity and transform.",
+      "washer": "Starts paused; changing preference to reduce pauses playback. Explicit play and rotation remain available.",
+      "source": [
+        "styles.css: final media query",
+        "assets/washer.js: reduced, playing, start"
+      ]
+    },
+    "washer": {
+      "source": "assets/washer.js",
+      "pixelRatioCap": 1.5,
+      "shadowMap": "1024x1024",
+      "rendererPowerPreference": "low-power",
+      "motion": "Drum rotation .27 radians/second; pause offscreen or when document hidden.",
+      "fallback": "A dedicated poster captured from the procedural washer remains visible on initialization failure or WebGL context loss.",
+      "interaction": "Labeled play/pause and 30-degree rotation buttons; non-touch pointer dragging; touch scroll preserved."
+    },
+    "icons": {
+      "source": "components/layout.php: icon",
+      "viewBox": "0 0 24 24",
+      "strokeWidth": 1.7,
+      "linecap": "round",
+      "linejoin": "round",
+      "color": "currentColor",
+      "defaultSize": "20px",
+      "decorativeAriaHidden": true
+    },
+    "images": {
+      "source": "docs/asset-provenance.md",
+      "branding": "images/leaf.png",
+      "photography": [
+        "assets/photos/dry-cleaning.jpg",
+        "assets/photos/wash-fold.jpg",
+        "assets/photos/alterations.jpg",
+        "assets/photos/delicate-care.jpg",
+        "assets/photos/ironing.jpg",
+        "assets/photos/home-laundry.jpg",
+        "assets/photos/about-garment-care.jpg"
+      ],
+      "policy": "AI-generated illustrative images have distinct service, home-story, and About roles; they do not depict actual staff or facilities. Exact prompts and provenance are recorded under docs/."
+    },
+    "serviceImagery": {
+      "source": "components/layout.php::service_photo",
+      "desktop": "170x115",
+      "tablet": "120x90",
+      "phone": "88x88",
+      "homeServiceRows": "compact icons",
+      "unknownService": "icon fallback",
+      "generatedPhotoPrompts": "docs/image-prompts.json"
+    }
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "source": "styles.css: .button, .button-outline",
+      "description": "Primary action with a green fill and a restrained hover lift.",
+      "html": "<button class=\"ds-primary\">Book a pickup</button>",
+      "css": ".ds-primary{font-family:Manrope,Arial,sans-serif;display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:13px 23px;border:1px solid transparent;border-radius:9px;background:var(--green,#156c45);color:white;font-size:14px;font-weight:700;line-height:1.4;cursor:pointer;transition:background .2s,transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s cubic-bezier(.16,1,.3,1)}.ds-primary:hover{background:var(--green-dark,#0e5034);color:white;transform:translateY(-2px);box-shadow:0 6px 14px rgba(21,108,69,.13)}.ds-primary:active{transform:translateY(0) scale(.98)}.ds-primary:focus-visible{outline:3px solid #257653;outline-offset:4px}.ds-primary:disabled{cursor:not-allowed;opacity:.55}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}}"
+    },
+    {
+      "name": "Outline button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "source": "styles.css: .button, .button-outline",
+      "description": "Secondary action with a green border and mint hover.",
+      "html": "<button class=\"ds-outline\">Book a pickup</button>",
+      "css": ".ds-outline{font-family:Manrope,Arial,sans-serif;display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:13px 23px;border:1px solid #adc3b5;border-radius:9px;background:transparent;color:var(--green,#156c45);font-size:14px;font-weight:700;line-height:1.4;cursor:pointer;transition:background .2s,transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s cubic-bezier(.16,1,.3,1)}.ds-outline:hover{background:var(--mint,#e9f3eb);color:var(--green-dark,#0e5034);transform:translateY(-2px);box-shadow:none}.ds-outline:active{transform:translateY(0) scale(.98)}.ds-outline:focus-visible{outline:3px solid #257653;outline-offset:4px}.ds-outline:disabled{cursor:not-allowed;opacity:.55}@media(prefers-reduced-motion:reduce){.ds-outline{transition:none}}"
+    },
+    {
+      "name": "Labeled field",
+      "kind": "input",
+      "refersTo": "input",
+      "source": "styles.css: .field, label, input:not([type=hidden]), .field-error",
+      "description": "White field with a persistent label, green hover and visible focus.",
+      "html": "<div class=\"ds-field\"><label for=\"ds-name\">Service name</label><input id=\"ds-name\" value=\"Dry Cleaning\"></div>",
+      "css": ".ds-field{font-family:Manrope,Arial,sans-serif;display:flex;flex-direction:column;gap:8px;min-width:0}.ds-field label{font-size:13px;font-weight:700;color:var(--ink,#183c30)}.ds-field input{font-family:Manrope,Arial,sans-serif;box-sizing:border-box;width:100%;min-height:48px;background:white;border:1px solid #aebfb4;border-radius:8px;padding:11px 13px;color:var(--ink,#183c30);font-size:14px;line-height:1.5;min-width:0;transition:border-color .2s}.ds-field input:hover{border-color:var(--green,#156c45)}.ds-field input:focus-visible{outline:3px solid #257653;outline-offset:4px}.ds-field input[aria-invalid=true]{border-color:var(--error,#9e2929)}@media(prefers-reduced-motion:reduce){.ds-field input{transition:none}}"
+    },
+    {
+      "name": "Public navigation",
+      "kind": "nav",
+      "source": "styles.css: .site-navigation; components/layout.php: page_start",
+      "description": "Current links combine green text, heavier weight and an underline.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Example navigation\"><a href=\"#home\" aria-current=\"page\">Home</a><a href=\"#services\">Services</a><a href=\"#about\">About us</a></nav>",
+      "css": ".ds-nav{font-family:Manrope,Arial,sans-serif;display:flex;align-items:center;gap:25px;font-size:13px;font-weight:650}.ds-nav a{display:inline-flex;align-items:center;position:relative;min-height:44px;color:var(--text,#344c43);text-decoration:none}.ds-nav a:hover{color:var(--green-dark,#0e5034)}.ds-nav a[aria-current=page]{color:var(--green,#156c45);font-weight:800}.ds-nav a[aria-current=page]:after{content:'';position:absolute;height:2px;background:var(--green,#156c45);left:0;right:0;bottom:0}.ds-nav a:focus-visible{outline:3px solid #257653;outline-offset:4px}"
+    },
+    {
+      "name": "Form panel",
+      "kind": "card",
+      "refersTo": "form-panel",
+      "source": "styles.css: .form-panel",
+      "description": "Quiet canvas container for account and administration forms.",
+      "html": "<section class=\"ds-panel\"><h2>Account details</h2><p>Update your saved details.</p></section>",
+      "css": ".ds-panel{font-family:Manrope,Arial,sans-serif;padding:30px;background:var(--canvas,#f7faf7);border-radius:16px;margin-bottom:30px}.ds-panel h2{margin:0;font-size:24px;font-weight:700;line-height:1.16;letter-spacing:-.035em;color:var(--ink,#183c30)}.ds-panel p{font-size:13px;line-height:1.65;margin:12px 0 26px;color:var(--muted,#5d7167)}@media(max-width:600px){.ds-panel{padding:24px 20px}.ds-panel h2{font-size:23px}}"
+    },
+    {
+      "name": "Pending status",
+      "kind": "chip",
+      "refersTo": "status-pending",
+      "source": "styles.css: .status-badge, .status-pending",
+      "description": "Text accompanies the warm pending status color; this is a noninteractive badge.",
+      "html": "<span class=\"ds-status\">Pending</span>",
+      "css": ".ds-status{font-family:Manrope,Arial,sans-serif;display:inline-flex;align-items:center;min-height:30px;padding:5px 11px;border-radius:20px;font-size:11px;font-weight:750;white-space:nowrap;background:#f7edcd;color:#73541b}"
+    },
+    {
+      "name": "Service disclosure",
+      "kind": "custom",
+      "source": "styles.css: .admin-services>details, .admin-services>details>summary; components/layout.php: icon",
+      "description": "Native catalog disclosure with divider and an authored line chevron.",
+      "html": "<details class=\"ds-disclosure\"><summary>Dry Cleaning <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"/></svg></summary><p>Edit this service and its option prices.</p></details>",
+      "css": ".ds-disclosure{font-family:Manrope,Arial,sans-serif;border-bottom:1px solid var(--line,#dce6df)}.ds-disclosure summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:23px 0;font-weight:700;font-size:15px;color:var(--ink,#183c30)}.ds-disclosure summary::-webkit-details-marker{display:none}.ds-disclosure summary:hover{color:var(--green-dark,#0e5034)}.ds-disclosure summary:focus-visible{outline:3px solid #257653;outline-offset:4px}.ds-disclosure[open]>summary>svg:last-child{transform:rotate(180deg)}.ds-disclosure p{margin:0 0 20px;font-size:13px;color:var(--muted,#5d7167)}"
+    }
+  ],
+  "narrative": {
+    "overview": "EcoLeaf keeps its established green leaf identity in a modern, polished web interface. White space, forest text, mint surfaces, and a single Manrope family give public pages an open, calm character. Booking, account, and administration screens use the same palette with denser, clearly labeled controls.\n\nRounded controls and circular washer geometry connect the interface to laundry care. The desktop home composition and the narrow service editor are representative implementations, captured in `artifacts/qa/home-viewport.png` and `artifacts/qa/admin-services-390.png`.",
+    "keyCharacteristics": [
+      "Green branding with restrained tonal surfaces.",
+      "Large balanced headings and readable, compact form labels.",
+      "Line icons, clear focus rings, and explicit action states.",
+      "Responsive grids with an optional procedural washer illustration."
+    ],
+    "rules": [
+      {
+        "name": "The Green Identity Rule",
+        "body": "Preserve the existing leaf mark and green action hierarchy across public, account, and admin screens.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "**Do** preserve the existing leaf mark and green action hierarchy.",
+      "**Do** use the shared type, field, focus, and button treatments across customer and admin screens.",
+      "**Do** retain labels and status text alongside icons and colors.",
+      "**Do** retain responsive local table scrolling, mobile navigation, reduced-motion handling, and the washer fallback.",
+      "**Do** record every shipping image's provenance and keep illustrative photography honestly described."
+    ],
+    "donts": [
+      "**Don't** replace the confirmed green identity or the authored SVG system with unrelated accents or emoji.",
+      "**Don't** make the booking task depend on animation or WebGL.",
+      "**Don't** invent business claims, reviews, statistics, facilities, or photographic provenance.",
+      "**Don't** describe unavailable Impeccable CLI gates as executed."
+    ]
+  }
+}

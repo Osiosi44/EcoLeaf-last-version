@@ -14,6 +14,11 @@ session_set_cookie_params([
     'samesite' => 'Lax',
 ]);
 session_start();
+if (isset($_SESSION['last_activity']) && time() - (int)$_SESSION['last_activity'] > 1800) {
+    $_SESSION = [];
+    session_regenerate_id(true);
+}
+$_SESSION['last_activity'] = time();
 if (!isset($_SESSION['last_regeneration']) || time() - $_SESSION['last_regeneration'] >= 1800) {
     session_regenerate_id(true);
     $_SESSION['last_regeneration'] = time();

@@ -2,3 +2,5 @@
 artifacts
 db/config.local.php
 .env
+node_modules
+tests

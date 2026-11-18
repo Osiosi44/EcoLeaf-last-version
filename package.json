@@ -1,0 +1,12 @@
+{
+  "name": "ecoleaf-qa",
+  "private": true,
+  "scripts": {
+    "test": "python tests/integration.py",
+    "test:browser": "node tests/browser.cjs --public"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "playwright": "1.65.1"
+  }
+}

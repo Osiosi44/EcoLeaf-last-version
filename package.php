@@ -1,58 +1,8 @@
 <?php
-    require_once "db/config_session.php";
+require_once __DIR__.'/components/layout.php';$services=service_catalog();page_start('Laundry services & prices','services');
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About</title> 
-    <link rel="stylesheet" href="services.css">
-    <link rel="stylesheet" href="styles.css">
-    <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
-    />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
-</head>
-<body>
-    <?php
-        require_once 'components/header/header.php';
-    ?>
-
-    <div class="heading" style="background-image: linear-gradient(rgba(0, 0, 0, 0.889), rgba(0, 0, 0,0.889)), url('images/machine_bg.png'); no-repeat;background-position:center">
-        <h1>Our Packages</h1>
-    </div>
-
-
-
-    <section class="packages">
-        <h1 class="heading-title">
-            Packages
-        </h1>
-        <div class="box-container">
-    <?php
-    require_once 'db/services/services_fetch.php';
-    ?>
-        </div>
-    </section>
-
-
-<?php
-require 'booking.php';
-?>
-
-
-
-
-<?php
-    require_once 'components/footer/footer.php';
-?>
-
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script src="script.js"></script> 
-<script src="services.js"></script>
-</body>
-</html>
+<main id="main"><section class="container page-heading"><h1>Good care starts<br>with the right service.</h1><p>Explore our laundry services and item prices. Your booking total is based on the options and quantities you select.</p></section>
+<section class="container section section-tight"><div class="service-list"><?php service_rows($services,0,true) ?></div></section>
+<section class="container section"><div class="section-heading"><h2>A clear price<br>for every item.</h2><p>Open a service to see its options. No checkout surprises: your selected items determine the total.</p></div><div class="price-details"><?php foreach($services as $service): if(!$service['options']) continue; ?><details><summary><?= h($service['service_name']) ?><span>From <?= money($service['option_min']) ?> <?= icon('chevron',18) ?></span></summary><ul><?php foreach($service['options'] as $option): ?><li><span><?= h($option['option_name']) ?></span><strong><?= money($option['price']) ?></strong></li><?php endforeach ?></ul><a class="text-link" href="<?= h(url('booking.php?service='.(int)$service['service_id'])) ?>">Choose these services <?= icon('arrow',18) ?></a></details><?php endforeach ?></div></section>
+<section class="container closing-section"><h2>Your next fresh start.</h2><a class="button button-light" href="<?= h(url('booking.php')) ?>">Book a pickup <?= icon('arrow') ?></a></section></main>
+<?php page_end() ?>

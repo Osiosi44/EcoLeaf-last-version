@@ -1,50 +1,31 @@
 <?php
-require_once __DIR__ . '/../db/config_session.php';
-require "../db/db_con.php";
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
-    header("Location: ../login.php");
-    exit;
-}
+require_once __DIR__.'/../components/layout.php';$admin=require_admin();
+$tabs=['overview'=>'Overview','orders'=>'Orders','users'=>'Customers','services'=>'Services','account'=>'Admin account'];$tab=query('tab','overview');if(!isset($tabs[$tab]))$tab='overview';
+$connection=db();$page=max(1,min(10000,(int)query('page','1')));$offset=($page-1)*25;$search=substr(query('search'),0,100);
+$stats=$connection->query("SELECT COUNT(*) AS total,SUM(status='pending') AS pending,SUM(status='in_progress') AS in_care,SUM(status='complete') AS completed FROM orders")->fetch_assoc();
+page_start('Administration','admin');
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laundry Admin Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="dashboard-container">
-
-        <div class="sidebar">
-            <ul>
-                <li class="sidebar-username">
-                    <span>Welcome, <strong><?php echo $_SESSION['user_username'];?></strong></span>
-                </li>
-                <br>
-                <li><button onclick="showContent('orders')">Orders</button></li>
-                <li><button onclick="showContent('users')">Users</button></li>
-                <li><button onclick="showContent('services')">Services</button></li>
-                <li><button onclick="showContent('account')">Account</button></li>
-            </ul>
-        </div>
-        <!-- Main Content -->
-        <div class="content" id="content">
-            <div id="orders" class="tab-content">
-                <?php require 'orders.php'; ?>
-            </div>
-            <div id="users" class="tab-content hidden">
-                <?php require 'users.php'; ?>
-            </div>
-            <div id="services" class="tab-content hidden">
-                <?php include 'services.php'; ?>
-            </div>
-            <div id="account" class="tab-content hidden">
-                <?php include 'account.php'; ?>
-            </div>
-        </div>
-    </div>
-    <script defer src="script.js"></script>
-</body>
-</html>
+<main id="main" class="container admin-layout"><aside class="admin-sidebar"><h1>Workspace</h1><nav aria-label="Administration"><?php foreach($tabs as $key=>$label): ?><a href="?tab=<?= h($key) ?>" <?= $tab===$key?'aria-current="page"':'' ?>><?= icon(['overview'=>'wash','orders'=>'bag','users'=>'user','services'=>'shirt','account'=>'lock'][$key],20) ?><?= h($label) ?></a><?php endforeach ?></nav><p>Signed in as<br><strong><?= h($admin['username']) ?></strong></p></aside><section class="admin-main"><div class="admin-heading"><div><h2><?= h($tab==='overview'?'A fresh view of your day.':$tabs[$tab]) ?></h2><p><?= h(['overview'=>'Bookings and activity from your EcoLeaf database.','orders'=>'Move bookings through scheduled, in care, and completed.','users'=>'Customer details are visible to administrators only.','services'=>'Update catalog information and prices. Past orders keep their original prices.','account'=>'Manage your profile and create administrator accounts.'][$tab]) ?></p></div></div>
+<?php if($tab==='overview'): ?><div class="stats-grid"><?php foreach(['total'=>'Total orders','pending'=>'Scheduled','in_care'=>'In care','completed'=>'Completed'] as $key=>$label): ?><div><span><?= h($label) ?></span><strong><?= (int)($stats[$key]??0) ?></strong></div><?php endforeach ?></div><?php endif ?>
+<?php if($tab==='overview' || $tab==='orders'):
+$status=query('status');$validStatus=in_array($status,['pending','in_progress','complete','cancelled'],true);$where=$validStatus?'WHERE o.status=?':'';
+$stmt=$connection->prepare('SELECT o.*,u.full_name,u.username FROM orders o JOIN users u ON u.id=o.user_id '.$where.' ORDER BY o.order_id DESC LIMIT 25 OFFSET ?');
+if($validStatus)$stmt->bind_param('si',$status,$offset);else $stmt->bind_param('i',$offset);$stmt->execute();$orders=$stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$countStmt=$connection->prepare('SELECT COUNT(*) FROM orders o '.$where);if($validStatus)$countStmt->bind_param('s',$status);$countStmt->execute();$count=(int)$countStmt->get_result()->fetch_row()[0];
+$details=[];if($orders){$ids=array_column($orders,'order_id');$stmt=$connection->prepare('SELECT oi.*,so.option_name FROM order_items oi LEFT JOIN service_options so ON so.option_id=oi.service_option_id WHERE oi.order_id IN ('.implode(',',array_fill(0,count($ids),'?')).')');$stmt->execute($ids);foreach($stmt->get_result()->fetch_all(MYSQLI_ASSOC) as $item)$details[$item['order_id']][]=$item;}
+?>
+<div class="table-toolbar"><h3><?= $tab==='overview'?'Recent orders':'Bookings' ?></h3><form method="get" class="inline-form"><input type="hidden" name="tab" value="orders"><label for="status-filter" class="sr-only">Filter order status</label><select id="status-filter" name="status"><option value="">All statuses</option><?php foreach(['pending','in_progress','complete','cancelled'] as $item): ?><option value="<?= h($item) ?>" <?= $status===$item?'selected':'' ?>><?= h(status_label($item)) ?></option><?php endforeach ?></select><button class="button button-small button-outline" type="submit">Filter</button></form></div>
+<?php if(!$orders): ?><div class="empty-state"><h3>No bookings here yet.</h3><p>New bookings will appear when customers schedule a pickup.</p></div><?php else: ?><div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable records"><table><caption class="sr-only">Laundry orders</caption><thead><tr><th scope="col">Order</th><th scope="col">Customer</th><th scope="col">Pickup</th><th scope="col">Total</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead><tbody><?php foreach($orders as $order): ?><tr><td><details><summary>#<?= (int)$order['order_id'] ?></summary><div class="order-table-detail"><p><?= h($order['address']) ?></p><ul><?php foreach($details[$order['order_id']]??[] as $item): ?><li><?= (int)$item['quantity'] ?> &times; <?= h($item['option_name']??'Service item') ?> &times; <?= money($item['price']) ?> each</li><?php endforeach ?></ul></div></details></td><td><strong><?= h($order['full_name']) ?></strong><small><?= h($order['username']) ?></small></td><td><?= h(date('M j, Y',strtotime($order['pickup_date']))) ?></td><td><?= money($order['total']) ?></td><td><span class="status-badge status-<?= h($order['status']) ?>"><?= h(status_label($order['status'])) ?></span></td><td><?php $allowed=['pending'=>['in_progress','cancelled'],'in_progress'=>['complete','cancelled']][$order['status']]??[];if($allowed): ?><form method="post" action="<?= h(url('admin/actions.php')) ?>" class="status-form"><?= csrf_field() ?><input type="hidden" name="action" value="update_order"><input type="hidden" name="order_id" value="<?= (int)$order['order_id'] ?>"><label for="status-<?= (int)$order['order_id'] ?>" class="sr-only">New status for order <?= (int)$order['order_id'] ?></label><select id="status-<?= (int)$order['order_id'] ?>" name="status"><?php foreach($allowed as $newStatus): ?><option value="<?= h($newStatus) ?>"><?= h(status_label($newStatus)) ?></option><?php endforeach ?></select><button type="submit" class="button button-small">Update</button></form><?php else: ?><span class="muted">No actions</span><?php endif ?></td></tr><?php endforeach ?></tbody></table></div><?php endif ?>
+<?php elseif($tab==='users'):
+$like='%'.$search.'%';$stmt=$connection->prepare("SELECT id,full_name,username,email,phone_number,created_at FROM users WHERE role='user' AND (full_name LIKE ? OR username LIKE ? OR email LIKE ?) ORDER BY id DESC LIMIT 25 OFFSET ?");$stmt->bind_param('sssi',$like,$like,$like,$offset);$stmt->execute();$users=$stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt=$connection->prepare("SELECT COUNT(*) FROM users WHERE role='user' AND (full_name LIKE ? OR username LIKE ? OR email LIKE ?)");$stmt->bind_param('sss',$like,$like,$like);$stmt->execute();$count=(int)$stmt->get_result()->fetch_row()[0];
+?>
+<form method="get" class="search-form"><input type="hidden" name="tab" value="users"><label for="customer-search" class="sr-only">Search customers by name, username, or email</label><input id="customer-search" name="search" value="<?= h($search) ?>" maxlength="100" placeholder="Search customers"><button class="button button-small" type="submit"><?= icon('search',18) ?> Search</button></form>
+<?php if(!$users): ?><div class="empty-state"><h3>No customers found.</h3><p>Try a different search or wait for the first registration.</p></div><?php else: ?><div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable records"><table><caption class="sr-only">Registered customers</caption><thead><tr><th scope="col">Name</th><th scope="col">Username</th><th scope="col">Email</th><th scope="col">Phone</th><th scope="col">Joined</th></tr></thead><tbody><?php foreach($users as $customer): ?><tr><td><?= h($customer['full_name']) ?></td><td><?= h($customer['username']) ?></td><td><?= h($customer['email']) ?></td><td><?= h($customer['phone_number']) ?></td><td><?= h(date('M j, Y',strtotime($customer['created_at']))) ?></td></tr><?php endforeach ?></tbody></table></div><?php endif ?>
+<?php elseif($tab==='services'): $services=service_catalog(); ?>
+<div class="admin-services"><?php foreach($services as $service): ?><details><summary><?= h($service['service_name']) ?><span><?= money($service['price']) ?> <?= icon('chevron',17) ?></span></summary><form method="post" action="<?= h(url('admin/actions.php')) ?>" class="stack-form"><?= csrf_field() ?><input type="hidden" name="action" value="save_service"><input type="hidden" name="service_id" value="<?= (int)$service['service_id'] ?>"><div class="field"><label for="service-name-<?= (int)$service['service_id'] ?>">Service name</label><input id="service-name-<?= (int)$service['service_id'] ?>" name="service_name" value="<?= h($service['service_name']) ?>" minlength="3" maxlength="50" required></div><div class="field"><label for="description-<?= (int)$service['service_id'] ?>">Description</label><textarea id="description-<?= (int)$service['service_id'] ?>" name="description" rows="3" maxlength="2000"><?= h($service['description']) ?></textarea></div><div class="field"><label for="base-price-<?= (int)$service['service_id'] ?>">Base price ($)</label><input id="base-price-<?= (int)$service['service_id'] ?>" type="number" name="price" min="0.01" max="999999.99" step="0.01" value="<?= h($service['price']) ?>" required></div><?php if($service['options']): ?><h3>Bookable option prices</h3><div class="option-price-grid"><?php foreach($service['options'] as $option): ?><div class="field"><label for="price-<?= (int)$option['option_id'] ?>"><?= h($option['option_name']) ?> ($)</label><input id="price-<?= (int)$option['option_id'] ?>" type="number" name="prices[<?= (int)$option['option_id'] ?>]" min="0.01" max="999999.99" step="0.01" value="<?= h($option['price']) ?>" required></div><?php endforeach ?></div><?php else: ?><p class="field-hint">This service has no bookable options and is not included in the booking form.</p><?php endif ?><div><button class="button" type="submit">Save service</button></div></form></details><?php endforeach ?></div>
+<details class="admin-add-service"><summary><?= icon('plus',20) ?> Add a service</summary><form action="<?= h(url('admin/actions.php')) ?>" method="post" class="stack-form"><?= csrf_field() ?><input type="hidden" name="action" value="add_service"><?php field('service_name','Service name','text','',[],'required minlength="3" maxlength="50"'); ?><div class="field"><label for="description">Description</label><textarea id="description" name="description" rows="3" maxlength="2000"></textarea></div><?php field('option_name','First bookable option','text','',[],'required minlength="2" maxlength="50"');field('price','Base and first option price ($)','number','',[],'required min="0.01" max="999999.99" step="0.01"'); ?><div><button class="button" type="submit">Create service</button></div></form></details>
+<?php elseif($tab==='account'): ?><section class="form-panel"><h3>Your administrator account</h3><p><?= h($admin['full_name']) ?><br><?= h($admin['email']) ?></p><a class="button button-outline" href="<?= h(url('profile.php')) ?>">Edit your account</a></section><section class="form-panel"><h3>Create an administrator</h3><p>The new account will be able to view customer details and manage bookings and services. Confirm your password to continue.</p><form action="<?= h(url('admin/actions.php')) ?>" method="post" class="stack-form" data-submit-form><?= csrf_field() ?><input type="hidden" name="action" value="create_admin"><div class="form-grid"><?php field('name','Full name','text','',[],'required maxlength="100"');field('username','Username','text','',[],'required minlength="3" maxlength="32" pattern="[a-zA-Z0-9_-]+" autocomplete="off"');field('email','Email address','email','',[],'required maxlength="255"');field('phone','Phone number','tel','',[],'required minlength="7" maxlength="15"');field('password','New account password','password','',[],'required minlength="10" maxlength="72" autocomplete="new-password"');field('current_password','Your current password','password','',[],'required autocomplete="current-password"'); ?></div><div><button type="submit" class="button" data-loading-label="Creating administrator...">Create administrator</button></div></form></section><?php endif ?>
+<?php if(isset($count) && $count>25): ?><nav class="pagination" aria-label="Administration pages"><?php if($page>1): ?><a class="button button-outline" href="?<?= h(http_build_query(['tab'=>$tab,'page'=>$page-1,'status'=>$status??'','search'=>$search])) ?>">Previous</a><?php endif ?><span>Page <?= $page ?> of <?= (int)ceil($count/25) ?></span><?php if($offset+25<$count): ?><a class="button button-outline" href="?<?= h(http_build_query(['tab'=>$tab,'page'=>$page+1,'status'=>$status??'','search'=>$search])) ?>">Next</a><?php endif ?></nav><?php endif ?>
+</section></main>
+<?php page_end() ?>
